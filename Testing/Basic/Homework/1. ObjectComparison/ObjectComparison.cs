@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using FluentAssertions;
+using NUnit.Framework;
+using NUnit.Framework.Constraints;
 using NUnit.Framework.Legacy;
 
 namespace HomeExercise.Tasks.ObjectComparison;
@@ -15,15 +17,23 @@ public class ObjectComparison
             new Person("Vasili III of Russia", 28, 170, 60, null));
 
         // Перепишите код на использование Fluent Assertions.
-        ClassicAssert.AreEqual(actualTsar.Name, expectedTsar.Name);
-        ClassicAssert.AreEqual(actualTsar.Age, expectedTsar.Age);
-        ClassicAssert.AreEqual(actualTsar.Height, expectedTsar.Height);
-        ClassicAssert.AreEqual(actualTsar.Weight, expectedTsar.Weight);
+        // ClassicAssert.AreEqual(actualTsar.Name, expectedTsar.Name);
+        // ClassicAssert.AreEqual(actualTsar.Age, expectedTsar.Age);
+        // ClassicAssert.AreEqual(actualTsar.Height, expectedTsar.Height);
+        // ClassicAssert.AreEqual(actualTsar.Weight, expectedTsar.Weight);
+        expectedTsar.Should().BeEquivalentTo(actualTsar, options => options
+            .Excluding(p => p.Id)
+            .Excluding(p => p.Parent));
 
-        ClassicAssert.AreEqual(expectedTsar.Parent!.Name, actualTsar.Parent!.Name);
-        ClassicAssert.AreEqual(expectedTsar.Parent.Age, actualTsar.Parent.Age);
-        ClassicAssert.AreEqual(expectedTsar.Parent.Height, actualTsar.Parent.Height);
-        ClassicAssert.AreEqual(expectedTsar.Parent.Parent, actualTsar.Parent.Parent);
+
+        //ClassicAssert.AreEqual(expectedTsar.Parent!.Name, actualTsar.Parent!.Name);
+        // ClassicAssert.AreEqual(expectedTsar.Parent.Age, actualTsar.Parent.Age);
+        // ClassicAssert.AreEqual(expectedTsar.Parent.Height, actualTsar.Parent.Height);
+        // ClassicAssert.AreEqual(expectedTsar.Parent.Parent, actualTsar.Parent.Parent);
+        
+        expectedTsar.Parent.Should().BeEquivalentTo(actualTsar.Parent, options => options
+            .Excluding(p => p.Id)
+            .Excluding(p => p.Weight));
     }
 
     [Test]
@@ -34,7 +44,9 @@ public class ObjectComparison
         var expectedTsar = new Person("Ivan IV The Terrible", 54, 170, 70,
             new Person("Vasili III of Russia", 28, 170, 60, null));
 
-        // Какие недостатки у такого подхода? 
+        // Какие недостатки у такого подхода?
+        //При добавлении свойств в класс Person этот тест перестанет корректно работать, его придется дописывать,
+        //а тест FluentAssertions придется дописывать, только если добавленное поле не должно учавствовать в сравнении
         ClassicAssert.True(AreEqual(actualTsar, expectedTsar));
     }
 
